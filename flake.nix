@@ -51,7 +51,7 @@
                     system.stateVersion = stateVersion;
                   })
                 ]
-                ++ map (role: ./modules/roles + "/${role}.nix") roles
+                ++ map (role: ./modules/roles/${role}.nix) roles
                 ++ extraModules;
             };
         };
