@@ -56,9 +56,11 @@
                   ({ lib, ... }: {
                     networking.hostName = lib.mkDefault (machine.hostname or "nixos");
 
-                    users.users.${machine.username} = lib.mkIf (machine ? username) {
-                      isNormalUser = true;
-                      extraGroups = [ "wheel" ];
+                    users.users = lib.mkIf (machine ? username) {
+                      ${machine.username} = {
+                        isNormalUser = true;
+                        extraGroups = [ "wheel" ];
+                      };
                     };
 
                     time.timeZone = lib.mkIf (machine ? timezone) machine.timezone;
