@@ -1,1 +1,5 @@
+{ ... }:
 
+{
+  services.xserver.enable = true;
+}
