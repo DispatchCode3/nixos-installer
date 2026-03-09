@@ -1,13 +1,23 @@
+{ inputs, ... }:
 {
-  networking.hostName = "{{HOSTNAME}}";
+  outputs = { self, nixos-installer, ... }:
+    let
+      system = "{{SYSTEM}}";
+    in {
+      nixosConfigurations.{{CONFIG_NAME}} =
+        nixos-installer.lib.${system}.mkHostConfig {
+          host = "{{HOST}}";
+          roles = [
+{{ROLES}}
+          ];
 
-  time.timeZone = "{{TIMEZONE}}";
-  i18n.defaultLocale = "{{LOCALE}}";
-
-  users.users.{{USERNAME}} = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-  };
-
-  system.stateVersion = "{{STATEVERSION}}";
+          machine = {
+            hostname = "{{HOSTNAME}}";
+            username = "{{USERNAME}}";
+            timezone = "{{TIMEZONE}}";
+            locale = "{{LOCALE}}";
+            stateVersion = "{{STATE_VERSION}}";
+          };
+        };
+    };
 }
