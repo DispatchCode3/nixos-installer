@@ -34,24 +34,18 @@
       };
 
       mkInstallerLib = system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-        in {
-          inherit pkgs;
-
+        {
           mkHostConfig =
-            { hostname
-            , username
-            , host
+            { host
             , roles ? [ ]
-            , stateVersion ? "24.11"
+            , machine ? { }
             , extraModules ? [ ]
             }:
             lib.nixosSystem {
               inherit system;
 
               specialArgs = {
-                inherit inputs self hostname username host roles;
+                inherit inputs self host roles;
               };
 
               modules =
@@ -59,15 +53,17 @@
                   self.nixosModules.base
                   hostModules.${host}
 
-                  ({ ... }: {
-                    networking.hostName = hostname;
+                  ({ lib, ... }: {
+                    networking.hostName = lib.mkDefault (machine.hostname or "nixos");
 
-                    users.users.${username} = {
+                    users.users.${machine.username} = lib.mkIf (machine ? username) {
                       isNormalUser = true;
                       extraGroups = [ "wheel" ];
                     };
 
-                    system.stateVersion = stateVersion;
+                    time.timeZone = lib.mkIf (machine ? timezone) machine.timezone;
+                    i18n.defaultLocale = lib.mkIf (machine ? locale) machine.locale;
+                    system.stateVersion = machine.stateVersion or "24.11";
                   })
                 ]
                 ++ map (role: roleModules.${role}) roles
